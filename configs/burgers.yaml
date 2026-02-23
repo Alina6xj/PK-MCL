@@ -1,0 +1,80 @@
+seed: 42
+data:
+  dataset_path: "data/burgers_dataset.pt"
+  out_path: "data/burgers_dataset.pt"
+  n_traj: 120
+  n_train: 100
+  nx: 256
+  dt: 1.0e-4
+  t_end: 1.0
+  snapshot_dt: 1.0e-2
+  nu: 0.01
+  forcing: true
+  forcing_amp: 0.5
+  forcing_n_gauss: 2
+  ic_n_modes: 8
+  ic_amp: 1.0
+  augmentation:
+    enabled: true
+    num_ops_min: 1
+    num_ops_max: 3
+    noise_std_min: 0.0
+    noise_std_max: 0.02
+    mask_ratio_min: 0.0
+    mask_ratio_max: 0.15
+    mask_block_min: 8
+    mask_block_max: 32
+    scale_min: 0.9
+    scale_max: 1.1
+    bias_min: -0.05
+    bias_max: 0.05
+    k_cut_min: 8
+    k_cut_max: 64
+    augment_control: false
+    control_noise_std: 0.005
+train:
+  device: "cuda"
+  batch_size: 32   #16
+  num_workers: 0
+  epochs_phase1: 100
+  epochs_phase2: 80  #60
+  lr: 2.0e-5
+  weight_decay: 1.0e-4
+  rollout_steps: 5
+  lambda_phy: 1.0    # 增加物理约束权重，让模型更关注物理一致性
+  lambda_l1: 5.0e-2  # 大幅提高L1正则化权重，增强稀疏性
+  use_consistency: false
+  lambda_con: 1.0
+  ema_tau: 0.99
+model:
+  latent_dim: 64
+  enc_channels: 64
+  dec_channels: 64
+  use_forcing: true
+  multiscale:
+    enabled: true
+    # 频带分割：low=0..k_low, mid=(k_low+1)..k_mid, high=剩余
+    # Nx=256 时 Nyquist≈128，建议 k_low << k_mid << 128
+    k_low: 12
+    k_mid: 48
+    # 低/中频各自潜空间维度（可不同）
+    latent_dim_low: 64
+    latent_dim_mid: 64
+    # 高频补偿网络通道数
+    high_channels: 64
+  library:
+    include_u: true
+    include_ux: true
+    include_uxx: true
+    include_u2: true
+    include_uux: true
+  physics:
+    projector_type: "gate"
+    gate_init: -2.0
+    threshold: 1e-3
+  use_smoothing: true
+  use_autodiff: false
+io:
+  ckpt_dir: "checkpoints"
+  out_dir: "outputs"
+  ckpt_name: "pkmcl_burgers.pt"

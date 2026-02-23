@@ -1,0 +1,54 @@
+seed: 42
+system: "ns"
+data:
+  dataset_path: "data/ns_dataset.pt"
+  out_path: "data/ns_dataset.pt"
+  n_traj: 100
+  n_train: 80
+  nx: 64
+  ny: 64
+  dt: 1.0e-3
+  t_end: 2.0
+  snapshot_dt: 0.02
+  nu: 1.0e-3
+  n_vortices: 10
+train:
+  device: "cuda"
+  batch_size: 8
+  num_workers: 0
+  epochs_phase1: 100
+  epochs_phase2: 80
+  lr: 2.0e-5
+  weight_decay: 1.0e-4
+  rollout_steps: 5
+  lambda_phy: 1.0
+  lambda_l1: 5.0e-2
+  use_consistency: false
+  lambda_con: 1.0
+  ema_tau: 0.99
+model:
+  latent_dim: 64
+  enc_channels: 64
+  dec_channels: 64
+  use_forcing: false
+  multiscale:
+    enabled: false
+  library:
+    include_u: true
+    include_ux: true
+    include_uy: true
+    include_uxx: true
+    include_uyy: true
+    include_u2: true
+    include_uux: true
+    include_uuy: true
+  physics:
+    projector_type: "gate"
+    gate_init: -2.0
+    threshold: 1e-3
+  use_smoothing: true
+  use_autodiff: false
+io:
+  ckpt_dir: "checkpoints"
+  out_dir: "outputs"
+  ckpt_name: "pkmcl_ns.pt"
